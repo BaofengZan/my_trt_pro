@@ -1,0 +1,110 @@
+<mxfile host="65bd71144e">
+    <diagram id="HHwnTb0lnY57lo85Dzst" name="第 1 页">
+        <mxGraphModel dx="1801" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="6" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="2" target="5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="compile&lt;br&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-50" y="-120" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="infer" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-100" y="340" width="90" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" style="edgeStyle=none;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="5" target="7" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="基本的流程" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="80" y="-135" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="创建network&lt;br&gt;解析onnx&lt;br&gt;save engine&lt;br&gt;&lt;div style=&quot;text-align: justify&quot;&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="240" y="-150" width="130" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="9" target="10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;startArrow=none;" parent="1" source="14" target="15" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="create-infer" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="160" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="10" target="11" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="commit图像" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="700" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="画图" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="130" y="1070" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="15" target="18" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="启动失败" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="19" vertex="1" connectable="0">
+                    <mxGeometry x="0.3084" y="4" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="23" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="15" target="24" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="510" y="310" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="490" y="310"/>
+                            <mxPoint x="490" y="340"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="启动成功" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="23" vertex="1" connectable="0">
+                    <mxGeometry x="0.2292" relative="1" as="geometry">
+                        <mxPoint x="17" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="startup" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="354" y="280" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="指针重置" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="354" y="420" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="29" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="14" target="27" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="14" target="28" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="创建InferImpl对象&lt;br&gt;每个任务，比如yolo&amp;nbsp; face等都需要实现InferImpl" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="330" y="160" width="120" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="" style="edgeStyle=orthogonalEdgeStyle;curved=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;endArrow=none;" parent="1" source="9" target="14" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="250" y="190" as="sourcePoint"/>
+                        <mxPoint x="414" y="280" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" value="初始化一些参数&lt;br&gt;然后调用基类的startup&lt;br&gt;【实际上即使开辟线程】" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="590" y="310" width="150" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;InferController&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;纯虚函数&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;（1）woker&amp;nbsp; 每个子任务自己需要的操作&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;（2）&lt;/span&gt;&lt;span&gt;preprocess&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;主要实现对job的管理，包括 jobs_队列的pushj和pop&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;commit函数实现了队列push&amp;nbsp; job&amp;nbsp; 对输入的Mat，预处理后，push到队列。&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;get_job_and_wait实现job的pop&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;startup函数&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;使用promise，开启新线程执行woker函数，&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;（这个woker函数由各自任务调用，多态）&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left&quot;&gt;&lt;span&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" parent="1" vertex="1">
+                    <mxGeometry x="560" y="-120" width="420" height="260" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="infer 类&lt;br&gt;纯虚函数&lt;br&gt;（1）commit&amp;nbsp;&amp;nbsp;&lt;br&gt;（2）commits&lt;br&gt;这两个都是提交图片进行识别&lt;br&gt;&lt;br&gt;在实现中，都是直接调用InferController的同名函数" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;align=left;" parent="1" vertex="1">
+                    <mxGeometry x="581" y="180" width="360" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="多重继承" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="120" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="&lt;font color=&quot;#ff0080&quot;&gt;每个任务需要实现【在新开的线程中】&lt;br&gt;（1）自己的预处理 preprocess&lt;br&gt;&#9;&#9;（1.1）此时worker函数应该已经分配了（batch*2）个容器，这个容器里面用来分配各自的显存。&lt;br&gt;&#9;（1.2）取一个容器， resize設置維度（此时还没有分配显存，内存）&lt;br&gt;&#9;（1.3）tensor getworkspace拿到MixMem。 MixMem实现内存现存的分配释放&lt;br&gt;&#9;（1.4）分配完显存后，执行预处理的cuda操作，放在了该容器中，并放在了job中，由基类的commit函数push到了队列中。&lt;br&gt;&lt;br&gt;（2） woker函数&lt;br&gt;&#9;（2.1） woker函数先于commit（也即preprocess），因此woker中要对Tensor内存进行申请管理，主要分配了（batch*2）个容器&lt;br&gt;&lt;span style=&quot;background-color: rgb(51 , 51 , 255)&quot;&gt;（2.1.1） load_infer 加载模型 创建engine&lt;/span&gt;&lt;br&gt;（2.2）调用基类get_job_and_wait拿到了第max-batch个处理好的job&lt;br&gt;（2.3）把每一个job的data数据，拷贝到engine的input中，并将该 容器，置为可用状态&lt;br&gt;（2.4）forward&lt;br&gt;（2.5）decode。并拷贝到output的cpu内存中，&lt;br&gt;（2.6）promise set-value&lt;br&gt;（2.7）容器的指针置空&lt;br&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;align=left;fillColor=#B3CFFF;" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="-110" width="449" height="380" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;" parent="1" vertex="1">
+                    <mxGeometry x="1010" y="-40" width="20" height="270" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="trt_builder" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="-160" y="-115" width="70" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
