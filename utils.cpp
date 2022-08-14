@@ -16,8 +16,26 @@
 #endif
 
 
-bool TRT::mkdirs(const std::string& path) {
+bool TRT::exists(const std::string& path)
+{
+#ifdef U_OS_WINDOWS
+    return ::PathFileExistsA(path.c_str());
+#elif defined(U_OS_LINUX)
+    return access(path.c_str(), R_OK) == 0;
+#endif
+}
 
+bool TRT::mkdir(const std::string& path)
+{
+#ifdef U_OS_WINDOWS
+    return CreateDirectoryA(path.c_str(), nullptr);
+#else
+    return ::mkdir(path.c_str(), 0755) == 0;
+#endif
+}
+
+bool TRT::mkdirs(const std::string& path)
+{
     if (path.empty()) return false;
     if (exists(path)) return true;
 
@@ -45,31 +63,12 @@ bool TRT::mkdirs(const std::string& path) {
                         return false;
                     }
                 }
-            }
+                    }
             *iter_ptr = old;
-        }
+                }
         iter_ptr++;
-        }
+            }
     return true;
-
-    }
-
-bool TRT::exists(const std::string& path)
-{
-#ifdef U_OS_WINDOWS
-    return ::PathFileExistsA(path.c_str());
-#elif defined(U_OS_LINUX)
-    return access(path.c_str(), R_OK) == 0;
-#endif
-}
-
-bool TRT::mkdir(const std::string& path)
-{
-#ifdef U_OS_WINDOWS
-    return CreateDirectoryA(path.c_str(), nullptr);
-#else
-    return ::mkdir(path.c_str(), 0755) == 0;
-#endif
 }
 
 
