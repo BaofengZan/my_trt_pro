@@ -20,7 +20,7 @@ public:
 	virtual void log(Severity severity, const char* msg) noexcept {
 		if (severity == Severity::kERROR){
 			printf("Error: %s\n", msg);   // 这里可以自己使用第三方的logger库，写入到文件中  spd-logger
-			abort();
+			//abort();
 		}
 		else if(severity==Severity::kINFO){
 			printf("Info: %s\n", msg);
@@ -201,7 +201,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	if (index != 0)
 	{
 		mode_name = onnx_file.substr(index + 1);
-		mode_name.replace(mode_name.find_last_of("."), 4, ".engine");
+		mode_name.replace(mode_name.find_last_of("."), 5, ".engine");
 	}
 	else
 	{

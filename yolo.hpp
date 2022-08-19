@@ -1,9 +1,11 @@
-#pragma one
+#ifndef YOLO_HPP_
+#define YOLO_HPP_
 
 #include <vector>
 #include <memory>
 #include <string>
 #include <future>
+
 #include "opencv2/opencv.hpp"
 #include "utils.h"
 #include "trt_tensor.hpp"
@@ -21,6 +23,7 @@ namespace Yolo {
     class Infer {
         // 定义接口。
         // 具体的实现再Impl中
+    public:
         virtual std::shared_future<BoxArray> commit(const cv::Mat& image) = 0;
         virtual std::vector<std::shared_future<BoxArray>> commits(const std::vector<cv::Mat>& images) = 0;
     };
@@ -35,3 +38,5 @@ namespace Yolo {
         bool use_multi_preprocess_stream = false
     );
 };
+
+#endif // !YOLO_HPP_

@@ -99,3 +99,23 @@ bool TRT::save_file(const std::string& file, const void* data, size_t length, bo
     fclose(f);
     return true;
 }
+
+std::vector<uint8_t> TRT::load_file(const std::string& file)
+{
+    std::ifstream in(file, std::ios::in | std::ios::binary);
+    if (!in.is_open())
+        return {};
+
+    in.seekg(0, std::ios::end);
+    size_t length = in.tellg();
+
+    std::vector<uint8_t> data;
+    if (length > 0) {
+        in.seekg(0, std::ios::beg);
+        data.resize(length);
+
+        in.read((char*)&data[0], length);
+    }
+    in.close();
+    return data;
+}

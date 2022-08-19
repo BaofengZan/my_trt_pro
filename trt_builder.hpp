@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRT_BUILDER_
+#define TRT_BUILDER_
 
 /*
 由onnx模型，编译生成engine
@@ -53,3 +54,6 @@ namespace TRT {
 	);
 
 }; // end namespace TRT
+
+
+#endif // !BUILDER_

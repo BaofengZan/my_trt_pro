@@ -1,4 +1,5 @@
-#pragma one
+#ifndef JOB_MANAGER_
+#define JOB_MANAGER_
 /*
 * infer时，对job的管理。
 * 实现为纯虚类：特定子类实现特定的方法 预处理和后处理等
@@ -73,7 +74,7 @@ public:
 		run_ = true; // 开始启动job管理线程
 		std::promise<bool> pro;
 		// 子线程启动 类成员函数（函数地址。this， 参数）
-		worker_ = std::make_shared<std::thread>(&JobManager::worker,this, sdt::ref(pro));
+		worker_ = std::make_shared<std::thread>(&JobManager::worker,this, std::ref(pro));
 		return pro.get_future().get(); // 取future的值。   没有有效值时阻塞到这里
 		// 即如果worker函数 没有执行完成时，该函数就不会返回。
 	}
@@ -87,7 +88,7 @@ public:
 		{
 			// 预处理完成后，才有后续操作
 			// 否则处理失败。没有必要往队列中塞值了
-			job.pro->set_value(Output()));
+			job.pro->set_value(Output());
 			return job.pro->get_future();
 		}
 		
@@ -133,7 +134,7 @@ protected:
 		当条件不满足时，线程将互斥量解锁，并重新开始等待。
 		*/
 		cond_.wait(l, [&]() {
-			return !jobs_.empty() | !run_;
+			return !jobs_.empty() || !run_;
 			});
 
 		if (!run_)
@@ -152,11 +153,11 @@ protected:
 		return true;
 	}
 
-	virtual bool get_job_and_wait(std::vector<Job>& fetch_jops) {
+	virtual bool get_job_and_wait(Job& fetch_jobs) {
 		// 从队列中取值，也需要加锁。
 		std::unique_lock<std::mutex> l(jobs_lock_);
 		cond_.wait(l, [&]() {
-			return !jobs_.empty() | !run_;
+			return !jobs_.empty() || !run_;
 			});
 
 		if (!run_)
@@ -164,7 +165,7 @@ protected:
 			// 没有线程处于启动状态
 			return false;
 		}
-		fetch_jops = std::move(jobs_.front());
+		fetch_jobs = std::move(jobs_.front());
 		jobs_.pop();
 		return true;
 	}
@@ -180,3 +181,5 @@ protected:
 	std::atomic<bool> run_;   // 标志 子线程是否启动
 
 };
+
+#endif // !JOB_MANAGER_

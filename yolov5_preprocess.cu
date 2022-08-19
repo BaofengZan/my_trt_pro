@@ -5,7 +5,7 @@ __global__ void warpaffine_kernel(
     uint8_t* src, int src_line_size, int src_width, 
     int src_height, float* dst, int dst_width, 
     int dst_height, uint8_t const_value_st,
-    AffineMatrix d2s, int edge) {
+    WarpAffineMatrix d2s, int edge) {
     int position = blockDim.x * blockIdx.x + threadIdx.x;
     if (position >= edge) return;
 
