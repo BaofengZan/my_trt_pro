@@ -8,7 +8,7 @@
 
 # 引用
 
-[TensorRT_PRO]([shouxieai/tensorRT_Pro: C++ library based on tensorrt integration (github.com)](https://github.com/shouxieai/tensorRT_Pro))
+[shouxieai/tensorRT_Pro: C++ library based on tensorrt integration](https://github.com/shouxieai/tensorRT_Pro)
 
 感谢手写AI各位大佬的无私贡献，让我们可以学习到更深入的知识！！！
 
