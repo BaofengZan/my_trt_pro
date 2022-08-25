@@ -122,8 +122,8 @@ namespace Yolo {
                 auto& mono = fetch_job.tensor;
                 printf("mono dim = %d %d %d %d", mono->size(0), mono->size(1), mono->size(2), mono->size(3));
                 // 拿到了tensor
-                cudaMemcpy(input->gpu(), mono->gpu(), mono->byte_size(), cudaMemcpyDeviceToDevice);
-
+                //cudaMemcpy(input->gpu(), mono->gpu(), mono->byte_size(), cudaMemcpyDeviceToDevice);
+                input->data_gpu2gpu(mono->gpu(), mono->byte_size());
                 //std::vector<float> cpu_out;
                 //int size = input->byte_size() / sizeof(float);
                 //cpu_out.resize(size);
@@ -143,13 +143,16 @@ namespace Yolo {
                 decode_kernel_invoker(image_based_output, output->size(1), num_classes, 0.45, nullptr, (float*)output_array_device.gpu(), MAX_IMAGE_BOXES, nullptr);
 
 
-                std::vector<float> cpu_out;
+              /*  std::vector<float> cpu_out;
                 int size = output_array_device.byte_size() / sizeof(float);
 
                 cpu_out.resize(size);
 
                 cudaMemcpy(cpu_out.data(), output_array_device.gpu(), output_array_device.byte_size(), cudaMemcpyDeviceToHost);
+                */
 
+                float* cpu_out = output_array_device.cpu<float>();
+                int size = output_array_device.numel(); // 个数
                 //for (int i = 0; i < cpu_out.size(); ++i)
                 //{
                 //    printf("val = %f\n", cpu_out[i]);
@@ -157,7 +160,7 @@ namespace Yolo {
                 int count = std::min(MAX_IMAGE_BOXES, (int)cpu_out[0]);
                 auto& image_based_boxes = fetch_job.output;
                 for (int i = 0; i < count; ++i) {
-                    std::vector<int> pbox(cpu_out.begin() + 1 + i * NUM_BOX_ELEMENT, cpu_out.begin() + 1 + (i + 1) * NUM_BOX_ELEMENT);
+                   float* pbox = output_array_device.cpu<float>(1 + i * NUM_BOX_ELEMENT);
                     int label = pbox[5];
                     int keepflag = pbox[6];
                     if (keepflag == 1) {
@@ -177,7 +180,7 @@ namespace Yolo {
             auto& tensor = job.tensor; // 这里的tensor 还未分配空间
             if (tensor == nullptr)
             {
-                tensor = std::shared_ptr<TRT::Tensor>(new TRT::Tensor());
+                tensor = std::shared_ptr<TRT::Tensor>(new TRT::Tensor(TRT::DataType::Float));
             }
             else
             {
@@ -191,16 +194,15 @@ namespace Yolo {
             // 预处理函数。
             // 处理原始图像数据
             // 最后把预处理的结果放入到tensor中
-            uint8_t* img_device = nullptr;
-            int  size_image = input.cols * input.rows * 3;
-            checkCudaRuntime(cudaMalloc((void**)&img_device, size_image));
-            cudaMemcpy(img_device, input.data, size_image, cudaMemcpyHostToDevice);
-            //preprocess_kernel_img(img_device, img.cols, img.rows, buffer_idx, INPUT_W, INPUT_H, stream);       
-            preprocess_kernel_img(img_device, input.cols, input.rows, (float*)tensor->gpu(), input_w_, input_h_, nullptr);
+            //uint8_t* img_device = nullptr;
+            //int  size_image = input.cols * input.rows * 3;  // uint8 sizeof=1
+            //checkCudaRuntime(cudaMalloc((void**)&img_device, size_image));
+            //cudaMemcpy(img_device, input.data, size_image, cudaMemcpyHostToDevice);
+            // preprocess_kernel_img(img_device, input.cols, input.rows, (float*)tensor->gpu(), input_w_, input_h_, nullptr);
+            //cudaFree(img_device);
 
-
-            cudaFree(img_device);
-
+            tensor->set_workspace<uint8_t>({1,3, input.rows, input.cols }, input.data);
+            preprocess_kernel_img(tensor->get_workspace<uint8_t>(), input.cols, input.rows, (float*)tensor->gpu(), input_w_, input_h_, nullptr);
             return true;
         } // 对iunput预处理后，塞到job中
 
