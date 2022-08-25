@@ -1,5 +1,5 @@
 #include "cuda_tools.hpp"
-
+#include "log.h"
 
 namespace CUDATools
 {
@@ -10,7 +10,7 @@ namespace CUDATools
                const char* name = nullptr;
                cuGetErrorString(e, &message);
                cuGetErrorName(e, &name);
-               printf("CUDA Driver error %s # %s, code = %s [ %d ] in file %s:%d", call, message, name, e, file, line);
+               spdlog::info("CUDA Driver error {} # {}, code = {} [ {} ] in file {}:{}", call, message, name, e, file, line);
                return false;
            }
            return true;
@@ -19,7 +19,7 @@ namespace CUDATools
    
        bool check_runtime(cudaError_t e, const char* call, int line, const char* file) {
            if (e != cudaSuccess) {
-               printf("CUDA Runtime error %s # %s, code = %s [ %d ] in file %s:%d", call, cudaGetErrorString(e), cudaGetErrorName(e), e, file, line);
+               spdlog::info("CUDA Runtime error {} # {}, code = {} [ {} ] in file {}:{}", call, cudaGetErrorString(e), cudaGetErrorName(e), e, file, line);
                return false;
            }
            return true;

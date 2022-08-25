@@ -4,6 +4,7 @@
 #include "yolo.hpp"
 #include <queue>
 #include "opencv2/opencv.hpp"
+#include "log.h"
 
 namespace Yolo
 {
@@ -42,7 +43,7 @@ cv::Rect get_rect(cv::Mat& img, float bbox[4]) {
 int main()
 {
 
-	
+    init_logger();
 
 	//TRT::compile(
 	//	TRT::Mode::FP16, 

@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-
+#include "log.h"
 
 
 namespace Yolo {
@@ -84,7 +84,7 @@ namespace Yolo {
             // 后面实现
             auto engine = TRT::create_engine(engine_file_); // 解析文件，生成engien
             if (engine == nullptr) {
-                printf("Engine %s load failed\n", engine_file_.c_str());
+                spdlog::error("Engine {} load failed", engine_file_);
                 result.set_value(false);
                 return;
             }
@@ -120,7 +120,7 @@ namespace Yolo {
                 //    auto& mono = job.tensor;
                 //}
                 auto& mono = fetch_job.tensor;
-                printf("mono dim = %d %d %d %d", mono->size(0), mono->size(1), mono->size(2), mono->size(3));
+                spdlog::info("mono dim = {} {} {} {}", mono->size(0), mono->size(1), mono->size(2), mono->size(3));
                 // 拿到了tensor
                 //cudaMemcpy(input->gpu(), mono->gpu(), mono->byte_size(), cudaMemcpyDeviceToDevice);
                 input->data_gpu2gpu(mono->gpu(), mono->byte_size());
@@ -253,6 +253,7 @@ namespace Yolo {
 
     std::shared_ptr<Infer> Yolo::create_infer(const std::string& engine_file, int gpuid, float condifence_threshold, float nms_threshold, int max_objects, bool use_multi_preprocess_stream)
     {
+        spdlog::info("create infer");
         std::shared_ptr<InferImpl> instace(new InferImpl());
         if (!instace->startup(engine_file, gpuid, condifence_threshold, nms_threshold, max_objects, use_multi_preprocess_stream))
         {

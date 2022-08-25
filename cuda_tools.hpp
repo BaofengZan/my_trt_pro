@@ -48,7 +48,7 @@
     __VA_ARGS__;                                                                                     \
     do{cudaError_t cudaStatus = cudaPeekAtLastError();                                               \
     if (cudaStatus != cudaSuccess){                                                                  \
-        printf("launch failed: %s", cudaGetErrorString(cudaStatus));                                  \
+         spdlog::error("launch failed: {}", cudaGetErrorString(cudaStatus));                                  \
     }} while(0);
 
 

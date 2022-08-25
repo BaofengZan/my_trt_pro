@@ -3,7 +3,7 @@
 #include <cuda.h>
 #include <cuda_fp16.h>
 #include <assert.h>
-
+#include "log.h"
 //TRT::Tensor::Tensor(int size): size_(size)
 //{
 //    checkCudaRuntime(cudaMalloc(&data_, size));
@@ -122,7 +122,7 @@ int TRT::Tensor::data_type_size(DataType dt) {
     case DataType::Int32: return sizeof(int);
     case DataType::UInt8: return sizeof(uint8_t);
     default: {
-        printf("Not support dtype: %d", dt);
+        spdlog::error("Not support dtype");
         return -1;
     }
     }

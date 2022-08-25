@@ -9,31 +9,31 @@
 #include <string>
 #include <iostream>
 #include <memory>
-
+#include "log.h"
 
 // trt 规定需要继承ILogger，实现logger
 // virtual void log(Severity severity, AsciiChar const* msg) noexcept = 0;
 // AsciiChar const* == const char*
 class Logger : public nvinfer1::ILogger {
-
+	// critical > error > warn > info > debug > trace
 public:
 	virtual void log(Severity severity, const char* msg) noexcept {
-		if (severity == Severity::kERROR){
-			printf("Error: %s\n", msg);   // 这里可以自己使用第三方的logger库，写入到文件中  spd-logger
+		if (severity == Severity::kERROR) {
+			spdlog::critical("Error: {}", msg);   // 这里可以自己使用第三方的logger库，写入到文件中  spd-logger
 			//abort();
 		}
-		else if(severity==Severity::kINFO){
-			printf("Info: %s\n", msg);
+		else if (severity == Severity::kINFO) {
+			spdlog::info("Info: {}", msg);
 		}
-		else if (severity==Severity::kINTERNAL_ERROR) {
-			printf("Error: %s\n", msg);
+		else if (severity == Severity::kINTERNAL_ERROR) {
+			spdlog::error("Error: {}", msg);
 		}
-		else if (severity==Severity::kVERBOSE) {
-			printf("Verbose: %s\n", msg);
+		else if (severity == Severity::kVERBOSE) {
+			spdlog::debug("Verbose: {}", msg);
 		}
-		else{
+		else {
 			//Severity::kWARNING 
-			printf("Warning: %s\n", msg);
+			spdlog::warn("Warning: {}", msg);
 		}
 	}
 };
@@ -45,16 +45,16 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	if (mode == Mode::INT8)
 	{
 		//INFOE("int8 not emplement.");
-		printf("int8 not emplement. \n");
+		spdlog::error("int8 not emplement.");
 		return false;
 	}
 
-	printf("start compile...");
+	spdlog::info("start compile...");
 
 	//自定义删除函数
 	std::shared_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(gLogger), destroy_nvidia_pointer<nvinfer1::IBuilder>);
 	if (builder == nullptr){
-		printf("create builer error!\n");
+		spdlog::error("create builer error!");
 		return false;
 	}
 
@@ -67,7 +67,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		}
 		else
 		{
-			printf("Plateform not support fp16\n");
+			spdlog::warn("Plateform not support fp16");
 		}
 	}
 	else if (mode == Mode::INT8) {
@@ -77,7 +77,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		}
 		else
 		{
-			printf("Plateform not support int 8\n");
+			spdlog::warn("Plateform not support int8");
 		}
 	}
 
@@ -95,7 +95,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	onnxParser = std::shared_ptr<nvonnxparser::IParser>(nvonnxparser::createParser(*network, gLogger), destroy_nvidia_pointer<nvonnxparser::IParser>);
 	if (!onnxParser->parseFromFile(onnx_file.c_str(), 1)) // 1 详细打印日志
 	{
-		printf("parse onnx file error!\n");
+		//spdlog::error("parse onnx file error!");
 		return false;
 	}
 
@@ -103,30 +103,30 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	auto inputTensor = network->getInput(0);
 	auto inputDims = inputTensor->getDimensions();
 
-	printf("Input shape is %s\n", join_dims(std::vector<int>(inputDims.d, inputDims.d+inputDims.nbDims)).c_str());
+	spdlog::info("Input shape is {}", join_dims(std::vector<int>(inputDims.d, inputDims.d+inputDims.nbDims)).c_str());
 
 	int num_input = network->getNbInputs();
-	printf("Network has %d inputs\n", num_input);
+	spdlog::info("Network has {} inputs", num_input);
 	for (int i = 0; i < num_input; ++i) {
 		auto tensor = network->getInput(i);
 		auto dims = tensor->getDimensions();
 		auto dim_str = join_dims(std::vector<int>(dims.d, dims.d + dims.nbDims));
-		printf("input[%d] %s shape is %s \n", i, tensor->getName(), dim_str.c_str());
+		spdlog::info("input[{}] {} shape is {}", i, tensor->getName(), dim_str);
 	}
 
 	int num_output = network->getNbOutputs();
-	printf("Network has %d outputs\n", num_output);
+	spdlog::info("Network has {} outputs", num_output);
 	for (int i = 0; i < num_output; ++i)
 	{
 		auto tensor = network->getOutput(i);
 		auto dims = tensor->getDimensions();
 		auto dim_str = join_dims(std::vector<int>(dims.d, dims.d + dims.nbDims));
-		printf("input[%d] %s shape is %s \n", i, tensor->getName(), dim_str.c_str());
+		spdlog::info("input[{}] {} shape is {}", i, tensor->getName(), dim_str);
 	}
 
 	// 打印每一层的维度
 	int num_net_layers = network->getNbLayers();
-	printf("Network has %d layers\n", num_net_layers);
+	spdlog::info("Network has {} layers", num_net_layers);
 	for (int i = 0; i < num_net_layers; ++i)
 	{
 		auto layer = network->getLayer(i);
@@ -152,14 +152,14 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 			out_dims += "]";
 		}
 
-		printf("[%s]  %s --> %s \n", name, input_dims.c_str(), out_dims.c_str());
+		spdlog::info("[{}]  {} --> {}", name, input_dims, out_dims);
 	}
 
 	builder->setMaxBatchSize(maxBatchSize);
-	printf("set MaxBatchSize = %d\n", maxBatchSize);
+	spdlog::info("set MaxBatchSize = {}", maxBatchSize);
 
 	config->setMaxWorkspaceSize(maxWorkspaceSize);
-	printf("set MaxBatchSize = %.2fMB\n", maxBatchSize/1024.0f/1024.0f);
+	spdlog::info("set MaxBatchSize = {}MB", maxBatchSize/1024.0f/1024.0f);
 
 	// profile
 	// 为不同输入设置不同大小
@@ -177,11 +177,11 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 
 	config->addOptimizationProfile(profile);
 
-	printf("\n\n\nBuild Engine.....\n");
+	spdlog::info("Build Engine.....");
 	std::shared_ptr<nvinfer1::ICudaEngine> engine(builder->buildEngineWithConfig(*network, *config), destroy_nvidia_pointer<nvinfer1::ICudaEngine>);
 	if (engine == nullptr)
 	{
-		printf("engine is nullptr\n");
+		spdlog::error("engine is nullptr");
 		return false;
 	}
 
@@ -208,6 +208,6 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		mode_name = "engine.engine";
 	}
 	std::string engine_file = engine_save_path + "/" + mode_str(mode)+ "_" + mode_name;
-	printf("Save engine to %s\n", engine_file.c_str());
+	spdlog::info("Save engine to {}", engine_file);
 	return save_file(engine_file, seridata->data(), seridata->size());
 }

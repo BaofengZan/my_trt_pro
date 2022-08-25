@@ -10,30 +10,31 @@
 #include <iostream>
 #include <memory>
 #include <assert.h>
+#include "log.h"
 
 // trt 规定需要继承ILogger，实现logger
 // virtual void log(Severity severity, AsciiChar const* msg) noexcept = 0;
 // AsciiChar const* == const char*
 class Logger : public nvinfer1::ILogger {
-
+	// critical > error > warn > info > debug > trace
 public:
 	virtual void log(Severity severity, const char* msg) noexcept {
 		if (severity == Severity::kERROR) {
-			printf("Error: %s\n", msg);   // 这里可以自己使用第三方的logger库，写入到文件中  spd-logger
-			abort();
+			spdlog::critical("Error: {}", msg);   // 这里可以自己使用第三方的logger库，写入到文件中  spd-logger
+			//abort();
 		}
 		else if (severity == Severity::kINFO) {
-			printf("Info: %s\n", msg);
+			spdlog::info("Info: {}", msg);
 		}
 		else if (severity == Severity::kINTERNAL_ERROR) {
-			printf("Error: %s\n", msg);
+			spdlog::error("Error: {}", msg);
 		}
 		else if (severity == Severity::kVERBOSE) {
-			printf("Verbose: %s\n", msg);
+			spdlog::debug("Verbose: {}", msg);
 		}
 		else {
 			//Severity::kWARNING 
-			printf("Warning: %s\n", msg);
+			spdlog::warn("Warning: {}", msg);
 		}
 	}
 };
@@ -123,7 +124,7 @@ namespace TRT {
 		bool execute_result = context_->enqueueV2(bindingsptr, nullptr, nullptr);
 		if (!execute_result) {
 			auto code = cudaGetLastError();
-			printf("execute fail, code %d[%s], message %s", code, cudaGetErrorName(code), cudaGetErrorString(code));
+			spdlog::error("execute fail, code {}[{}], message {}", code, cudaGetErrorName(code), cudaGetErrorString(code));
 		}
 	}
 
@@ -150,7 +151,7 @@ namespace TRT {
 		auto node = layername_index_mapper_.find(name);
 		if (node == layername_index_mapper_.end())
 		{
-			printf("Could not found the input/output node '%s', please makesure your model", name.c_str());
+			spdlog::error("Could not found the input/output node '{}', please makesure your model", name.c_str());
 		}
 		return order_layers_[node->second];
 	}
@@ -191,7 +192,7 @@ namespace TRT {
 	bool InferImpl::build_engie(const void* pdata, size_t size)
 	{
 		if (pdata == nullptr || size == 0) {
-			printf("data is null\n");
+			spdlog::error("data is null");
 			return false;
 		}
 
