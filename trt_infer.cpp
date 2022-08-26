@@ -116,6 +116,20 @@ namespace TRT {
 
 	void InferImpl::forward()
 	{
+		/*这里第一版本中有个bug
+		因为我们的onnx是explicite 模式。
+		所以在enqueueV2之前必须要setBindingDimensions
+		*/
+		int inputBatchSize = inputs_[0]->size(0);  // 拿到batch
+		for (int i = 0; i < engine_->getNbBindings(); ++i) {
+			auto dims = engine_->getBindingDimensions(i);
+			auto type = engine_->getBindingDataType(i);
+			dims.d[0] = inputBatchSize;
+			if (engine_->bindingIsInput(i)) {
+				context_->setBindingDimensions(i, dims);
+			}
+		}
+
 		for (int i = 0; i < order_layers_.size(); ++i)
 		{
 			bindingsPtr_[i] = order_layers_[i]->gpu();
