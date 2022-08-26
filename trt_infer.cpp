@@ -129,6 +129,12 @@ namespace TRT {
 				context_->setBindingDimensions(i, dims);
 			}
 		}
+		/*更改输出的维度信息，以及分配的显存大小*/
+		for (int i = 0; i < outputs_.size(); ++i) {
+			auto dims = outputs_[i]->dims();
+			dims[0] = inputBatchSize;
+			outputs_[i]->resize(dims);
+		}
 
 		for (int i = 0; i < order_layers_.size(); ++i)
 		{
@@ -259,7 +265,7 @@ namespace TRT {
 			}
 			else
 			{
-				outputs_.push_back(new_tensor);
+				outputs_.push_back(new_tensor); // 此时还没分配显存的
 				outputs_name_.push_back(binding_name);
 			}
 			

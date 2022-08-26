@@ -62,6 +62,7 @@ namespace TRT {
         inline int  width()         { return dims_[2]; };
         inline int  height()        { return dims_[3]; };
         int         numel();                               // 返回数据个数（非字节数）
+        std::vector<int> dims() { return dims_; };
         std::string dim_str();                             // 返回维度的字符串 n x c x h x w
 
         int byte_size() { return size_; }                  // 返回当前Tensor的字节数
