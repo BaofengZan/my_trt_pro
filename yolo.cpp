@@ -123,7 +123,7 @@ namespace Yolo {
                 spdlog::info("mono dim = {} {} {} {}", mono->size(0), mono->size(1), mono->size(2), mono->size(3));
                 // ÄÃµ½ÁËtensor
                 //cudaMemcpy(input->gpu(), mono->gpu(), mono->byte_size(), cudaMemcpyDeviceToDevice);
-                input->data_gpu2gpu(mono->gpu(), mono->byte_size());
+                input->set_data(mono->gpu(), mono->byte_size(), TRT::DataTransType::D2D);
                 //std::vector<float> cpu_out;
                 //int size = input->byte_size() / sizeof(float);
                 //cpu_out.resize(size);

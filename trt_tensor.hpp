@@ -24,6 +24,23 @@ namespace TRT {
         Int32 = 2,
         UInt8 = 3
     };
+    //// 数据转移类型
+    //// D2H  gpu到cpu
+    enum class DataTransType {
+        D2H = 0,
+        D2D = 1,
+        H2H = 2,
+        H2D = 3,
+    };
+
+    //对显存/内存的管理再次封装
+    class MixMemory {
+        MixMemory() {};
+        MixMemory();
+
+    };
+
+
 
     class Tensor {
     public:
@@ -36,14 +53,11 @@ namespace TRT {
 
         ~Tensor();
 
-        void data_cpu2gpu(void* data, int byte_size);  //都是往gpu上塞数据。
-        void data_gpu2gpu(void* data, int byte_size);
-
+        // 赋值
+        void set_data(void* data, int byte_size, DataTransType type);
 
         bool resize(const std::initializer_list<int>& dims);
         bool resize(const std::vector<int>& dims);
-
-
 
 
         void* cpu() { to_cpu(); return cpu_data_; }

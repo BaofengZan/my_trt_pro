@@ -39,21 +39,30 @@ TRT::Tensor::~Tensor()
     release_gpu();
 }
 
-void TRT::Tensor::data_cpu2gpu(void* data, int byte_size)
+
+void TRT::Tensor::set_data(void* data, int byte_size, DataTransType type)
 {
     assert(byte_size <= size_);
-
-    // 直接调用，gpu()中会先分配显存的
-     cudaMemcpy(gpu(), data, byte_size, cudaMemcpyHostToDevice);
-    
-}
-
-void TRT::Tensor::data_gpu2gpu(void* data, int byte_size)
-{
-    assert(byte_size <= size_);
-
-    // 直接调用，gpu()中会先分配显存的
-    cudaMemcpy(gpu(), data, byte_size, cudaMemcpyDeviceToDevice);
+    if (type == DataTransType::D2D)
+    {
+        // 直接调用，gpu()中会先分配显存的
+        cudaMemcpy(gpu(), data, byte_size, cudaMemcpyDeviceToDevice);
+    }
+    else if (type == DataTransType::H2D)
+    {
+        // 直接调用，gpu()中会先分配显存的
+        cudaMemcpy(gpu(), data, byte_size, cudaMemcpyHostToDevice);
+    }
+    else if (type == DataTransType::H2H)
+    {
+        // 直接调用，gpu()中会先分配显存的
+        memcpy(cpu(), data, byte_size);
+    }
+    else if (type == DataTransType::D2H)
+    {
+        // 直接调用，gpu()中会先分配显存的
+        cudaMemcpy(cpu(), data, byte_size, cudaMemcpyDeviceToHost);
+    }
 
 }
 
