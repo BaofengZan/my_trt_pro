@@ -1,5 +1,3 @@
-
-
 #include "cuda_tools.hpp"
 
 namespace Yolo{
