@@ -1,25 +1,30 @@
 # 跟着大佬学知识
 
 * 一步一步实现Tensor_pro，从而理解手写AI团队的思想
+    * 我仅上传代码：在windows下，用vs创建工程然后加载代码；在linux下，根据自己习惯创建工程。
 
 * 深入理解线程、内存复用等知识
+    * 无锁队列
 
-* 第一阶段记录  [V1](./docs/v1.md)
+* 第一阶段记录  [V1](./docs/v1.md) 
+    * 基本流程，job管理 
 
 * 第二阶段记录 [V2](./docs/v2.md)
+    * tensor的管理
+
+* 第三阶段记录 [V3](./docs/v3.md)
+    * 显存的复用
 
 * nvidia解码
-
-* 无锁队列
 
 ## bug 记录
 
 ```c
-        /*
+/*
 trt_infet.cpp
 因为我们的onnx是explicite 模式。
 所以在enqueueV2之前必须要setBindingDimensions
-        */
+*/
 int inputBatchSize = inputs_[0]->size(0);  // 拿到batch
 for (int i = 0; i < engine_->getNbBindings(); ++i) {
     auto dims = engine_->getBindingDimensions(i);
