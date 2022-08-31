@@ -33,14 +33,6 @@ namespace TRT {
         H2D = 3,
     };
 
-    //对显存/内存的管理再次封装
-    class MixMemory {
-        MixMemory() {};
-        MixMemory();
-
-    };
-
-
 
     class Tensor {
     public:

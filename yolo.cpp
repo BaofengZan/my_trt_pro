@@ -98,10 +98,13 @@ namespace Yolo {
             const int NUM_BOX_ELEMENT = 7; //  // left, top, right, bottom, confidence, class, keepflag  
             // keepfalg 用于nms中的
 
-            TRT::Tensor output_array_device;
+            // 申请一大块显存
             int max_batch_size = engine->get_max_batch_size();
+            TRT::Tensor output_array_device;
             input_h_ = engine->get_input_h();
             input_w_ = engine->get_input_w();
+            tensor_allocator_ = std::make_shared<MonopolyAllocator<TRT::Tensor>>(max_batch_size * 2);
+
             result.set_value(true);
 
 
@@ -119,11 +122,16 @@ namespace Yolo {
                 //    auto& job = fetch_jobs[ibatch];
                 //    auto& mono = job.tensor;
                 //}
-                auto& mono = fetch_job.tensor;
+                //auto& mono = fetch_job.tensor;
+                auto& mono = fetch_job.tensor->data();
                 spdlog::info("mono dim = {} {} {} {}", mono->size(0), mono->size(1), mono->size(2), mono->size(3));
                 // 拿到了tensor
                 //cudaMemcpy(input->gpu(), mono->gpu(), mono->byte_size(), cudaMemcpyDeviceToDevice);
                 input->set_data(mono->gpu(), mono->byte_size(), TRT::DataTransType::D2D);
+
+                //这块显存用完就释放
+                fetch_job.tensor->release();
+                
                 //std::vector<float> cpu_out;
                 //int size = input->byte_size() / sizeof(float);
                 //cpu_out.resize(size);
@@ -172,12 +180,21 @@ namespace Yolo {
 
                 fetch_job.pro->set_value(image_based_boxes);
             }
+
+            tensor_allocator_.reset();
         }
 
         virtual bool preprocess(Job& job, const cv::Mat& input) {
             cudaSetDevice(gpu_id_);
 
-            auto& tensor = job.tensor; // 这里的tensor 还未分配空间
+            // 先申请一块
+            job.tensor = tensor_allocator_->query();
+            if (job.tensor == nullptr) {
+                spdlog::info("Tensor allocator query failed.");
+                return false;
+            }
+
+            auto& tensor = job.tensor->data(); // 拿到tensor的指针
             if (tensor == nullptr)
             {
                 tensor = std::shared_ptr<TRT::Tensor>(new TRT::Tensor(TRT::DataType::Float));

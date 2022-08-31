@@ -17,6 +17,7 @@
 #include <future>
 #include <condition_variable>
 #include "trt_tensor.hpp"
+#include "monoploy_allocator.hpp"
 
 template <class Input, class Output, class InitParam = std::tuple<std::string, int>, class WarpAffineMatrix=int >
 class JobManager {
@@ -25,7 +26,8 @@ public:
 	{
 		Input input;  //Mat
 		Output output;   //Box
-		std::shared_ptr<TRT::Tensor> tensor;  //  预处理之后的显存数据
+		//std::shared_ptr<TRT::Tensor> tensor;  //  预处理之后的显存数据
+		MonopolyAllocator<TRT::Tensor>::MonopolyDataPointer tensor;
 		std::shared_ptr<std::promise<Output>> pro;
 	};
 
@@ -179,7 +181,7 @@ protected:
 	std::mutex jobs_lock_;
 	std::condition_variable cond_; // 条件变量，实现多线程之间数据交互
 	std::atomic<bool> run_;   // 标志 子线程是否启动
-
+	std::shared_ptr<MonopolyAllocator<TRT::Tensor>> tensor_allocator_;   // 一大块显存（不释放的）
 };
 
 #endif // !JOB_MANAGER_

@@ -1,3 +1,6 @@
+#ifndef LOG_H_
+#define LOG_H_
+
 #ifdef DEBUG
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 // #define SPDLOG_DEBUG_ON
@@ -49,3 +52,5 @@ static inline void init_logger(){
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
 }
+
+#endif // !LOG_H_

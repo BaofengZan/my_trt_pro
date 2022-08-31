@@ -7,7 +7,7 @@
 #include <cuda.h>
 #include <iostream>
 #include <cuda_runtime.h>
-
+#include "log.h"
 //namespace CUDATools{
 //
 //    bool check_driver(CUresult e, const char* call, int line, const char* file) {
@@ -52,7 +52,6 @@
     }} while(0);
 
 
-
 namespace CUDATools{
 
     bool check_driver(CUresult e, const char* call, int line, const char* file);
@@ -64,7 +63,7 @@ namespace CUDATools{
     dim3 block_dims(int numJobs);
 };
 
-
+//
 #define checkCudaDriver(call)  CUDATools::check_driver(call, #call, __LINE__, __FILE__)
 #define checkCudaRuntime(call) CUDATools::check_runtime(call, #call, __LINE__, __FILE__)
 

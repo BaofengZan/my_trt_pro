@@ -1,7 +1,6 @@
 #include "cuda_tools.hpp"
 
 namespace Yolo{
-
     const int NUM_BOX_ELEMENT = 7;      // left, top, right, bottom, confidence, class, keepflag
     static __device__ void affine_project(float* matrix, float x, float y, float* ox, float* oy){
         *ox = matrix[0] * x + matrix[1] * y + matrix[2];

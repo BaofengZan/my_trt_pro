@@ -18,23 +18,24 @@ class MonopolyAllocator {
 public:
 	// MonopolyData  改为cell 方便理解
 	class CellData {
+	public:
 		std::shared_ptr<_ItemType>& data() { return data_; }
 		// 用完后，我们要将该cell的available 置为true
 		// 释放所有权
 		// 释放后，不仅仅设置这个，还要设置可用cell的数量，所以
 		// 实际释放不应该在这里，而是在外面。 所以用到friend class
-		void release() { manager_->release(); }
+		void release() { manager_->release(this); }
 	private:
 		CellData(MonopolyAllocator* manager) { manager_ = manager; };
 
 		friend class MonopolyAllocator;
 		MonopolyAllocator* manager_{ nullptr };
-	private:
+	public:
 		std::shared_ptr<_ItemType> data_{nullptr};  // float* data
 		bool available_{ true };                    // 是否可用
 	};
 
-
+	typedef std::shared_ptr<CellData> MonopolyDataPointer;    // 在Job的定义中使用到了
 	MonopolyAllocator(int size) {
 		// 初始化，
 		capacity_ = size;
@@ -42,7 +43,7 @@ public:
 		datas_.resize(size);
 
 		for (int i = 0; i < size; ++i) {
-			datas_[i] = std::shared_ptr<CellData>();
+			datas_[i] = std::shared_ptr<CellData>(new CellData(this));
 		}
 	}
 
@@ -64,33 +65,33 @@ public:
 	*/
 	std::shared_ptr<CellData> query(int timeout = 10000) {
 		std::unique_lock<std::mutex> l(lock_);
-		if (!run) { return nullptr; } // 此时任务没有run
+		if (!run_) { return nullptr; } // 此时任务没有run
 
 		if (num_available_ == 0) {
 			// 此时没有可用的cell
 			num_available_++;
 			auto state = cv_.wait_for(l, std::chrono::milliseconds(timeout), [&]()
 				{
-					return num_available_ > 0 || !run;
+					return num_available_ > 0 || !run_;
 				});
 
 			// 到这里时，说明有cell可用了
 			num_available_--;
 			cv_exit_.notify_one();
 
-			if (!state || num_available_==0||!run)
+			if (!state || num_available_==0||!run_)
 			{
 				return nullptr;
 			}
 		}
 
-		auto item = std::find_if(datas_.begin(), datas_.end() [](std::shared_ptr<CellData>& item) {return item->available_; });
+		auto item = std::find_if(datas_.begin(), datas_.end(), [](std::shared_ptr<CellData>& item) {return item->available_; });
 		if (item == datas_.end())
 		{
 			return nullptr;
 		}
 
-		(*item)->available = false;  // 被使用了
+		(*item)->available_ = false;  // 被使用了
 		num_available_--;
 		return *item;
 
