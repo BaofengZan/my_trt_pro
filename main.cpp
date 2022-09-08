@@ -48,8 +48,8 @@ int main()
 	//TRT::compile(
 	//	TRT::Mode::FP16, 
 	//	1, 
-	//	R"(F:\LearningCode\tensorRT_Pro\workspace\yolov5s.onnx)",
-	//	R"(F:\LearningCode\tensorRT_Pro\workspace)"
+	//	R"(F:\LearningCode\my_trt_pro\my_trt_pro\yolov5s-err.onnx)",
+	//	R"(F:\LearningCode\my_trt_pro\my_trt_pro)"
 	//);
 
 	// ¿ªÊ¼±àÐ´infer
@@ -60,8 +60,8 @@ int main()
 
 	//auto infer = TRT::create_engine(R"(F:\LearningCode\tensorRT_Pro\workspace/fp16_yolov5s.engine)");
 	//infer->forward();
-
-	auto engine = Yolo::create_infer(R"(F:\LearningCode\tensorRT_Pro\workspace/fp16_yolov5s.engine)");
+    //gpuid =0, confidence_threshold=0.45, nms_threshold=0.5
+	auto engine = Yolo::create_infer(R"(F:\LearningCode\my_trt_pro\my_trt_pro/fp16_yolov5s-err.engine)", 0, 0.45, 0.5);
 	cv::Mat img = cv::imread(R"(F:\LearningCode\tensorRT_Pro\workspace\inference\car.jpg)");
 	std::shared_future<Yolo::BoxArray> predbox = engine->commit(img);
 

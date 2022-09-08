@@ -148,7 +148,7 @@ namespace Yolo {
 
 
 
-                decode_kernel_invoker(image_based_output, output->size(1), num_classes, 0.45, nullptr, (float*)output_array_device.gpu(), MAX_IMAGE_BOXES, nullptr);
+                decode_kernel_invoker(image_based_output, output->size(1), num_classes, confidence_threshold_, nullptr, (float*)output_array_device.gpu(), MAX_IMAGE_BOXES, nullptr);
 
 
               /*  std::vector<float> cpu_out;
@@ -176,7 +176,7 @@ namespace Yolo {
                     }
                 }
 
-                image_based_boxes = cpu_nms(image_based_boxes, 0.5);
+                image_based_boxes = cpu_nms(image_based_boxes, nms_threshold_);
 
                 fetch_job.pro->set_value(image_based_boxes);
             }
@@ -259,8 +259,8 @@ namespace Yolo {
         int input_w_{ 0 };
         int input_h_{ 0 };
         int gpu_id_{ 0 };
-        int confidence_threshold_{ 0 };
-        int nms_threshold_{ 0 };
+        float confidence_threshold_{ 0 };
+        float nms_threshold_{ 0 };
         int  max_objects_{ 1024 };
         bool use_multi_preprocess_stream_{ false };
 
