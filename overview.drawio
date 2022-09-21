@@ -90,7 +90,7 @@
                     <mxGeometry x="560" y="-120" width="420" height="260" as="geometry"/>
                 </mxCell>
                 <mxCell id="28" value="infer 类&lt;br&gt;纯虚函数&lt;br&gt;（1）commit&amp;nbsp;&amp;nbsp;&lt;br&gt;（2）commits&lt;br&gt;这两个都是提交图片进行识别&lt;br&gt;&lt;br&gt;在实现中，都是直接调用InferController的同名函数" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;align=left;" parent="1" vertex="1">
-                    <mxGeometry x="581" y="180" width="360" height="110" as="geometry"/>
+                    <mxGeometry x="560" y="160" width="360" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="31" value="多重继承" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="400" y="120" width="60" height="20" as="geometry"/>
