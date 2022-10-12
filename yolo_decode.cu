@@ -43,8 +43,9 @@ namespace Yolo{
         float top    = cy - height * 0.5f;
         float right  = cx + width * 0.5f;
         float bottom = cy + height * 0.5f;
-        //affine_project(invert_affine_matrix, left,  top,    &left,  &top);
-        //affine_project(invert_affine_matrix, right, bottom, &right, &bottom);
+        //printf("------------%f--%f--%f--%f--%f--%f \n", invert_affine_matrix[0], invert_affine_matrix[1], invert_affine_matrix[2], invert_affine_matrix[3], invert_affine_matrix[4], invert_affine_matrix[5] );
+        affine_project(invert_affine_matrix, left,  top,    &left,  &top);
+        affine_project(invert_affine_matrix, right, bottom, &right, &bottom);
 
         float* pout_item = parray + 1 + index * NUM_BOX_ELEMENT;
         *pout_item++ = left;

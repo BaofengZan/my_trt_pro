@@ -79,6 +79,7 @@ namespace TRT {
         template<typename type>
         void set_workspace(const std::vector<int>& dims, void* data = nullptr)
         {
+            // 分配一大块显存，用于存放原始数据 （预处理之前的）
             int needsize = sizeof(type);
             for (const auto& item : dims)
             {

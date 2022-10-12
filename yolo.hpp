@@ -24,8 +24,9 @@ namespace Yolo {
         // 定义接口。
         // 具体的实现再Impl中
     public:
-        virtual std::shared_future<BoxArray> commit(const cv::Mat& image) = 0;
-        virtual std::vector<std::shared_future<BoxArray>> commits(const std::vector<cv::Mat>& images) = 0;
+        virtual std::shared_future<BoxArray> commit(const Yolo::Image& image) = 0;
+        //virtual std::shared_future<BoxArray> commit_gpu(const Yolo::Image& image) = 0;
+        //virtual std::vector<std::shared_future<BoxArray>> commits(const std::vector<cv::Mat>& images) = 0;
     };
 
 

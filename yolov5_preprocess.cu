@@ -88,24 +88,26 @@ __global__ void warpaffine_kernel(
 
 void preprocess_kernel_img(
     uint8_t* src, int src_width, int src_height,
-    float* dst, int dst_width, int dst_height,
+    float* dst, int dst_width, int dst_height, float* out_d2i,
     cudaStream_t stream) {
     WarpAffineMatrix s2d,d2s;
     float scale = std::min(dst_height / (float)src_height, dst_width / (float)src_width);
 
     s2d.value[0] = scale;
     s2d.value[1] = 0;
-    s2d.value[2] = -scale * src_width  * 0.5  + dst_width * 0.5;
+    s2d.value[2] = -scale * src_width  * 0.5  + dst_width * 0.5+scale*0.5-0.5;
     s2d.value[3] = 0;
     s2d.value[4] = scale;
-    s2d.value[5] = -scale * src_height * 0.5 + dst_height * 0.5;
+    s2d.value[5] = -scale * src_height * 0.5 + dst_height * 0.5+scale*0.5-0.5;
 
     cv::Mat m2x3_s2d(2, 3, CV_32F, s2d.value);
     cv::Mat m2x3_d2s(2, 3, CV_32F, d2s.value);
     cv::invertAffineTransform(m2x3_s2d, m2x3_d2s);
 
     memcpy(d2s.value, m2x3_d2s.ptr<float>(0), sizeof(d2s.value));
-
+    memcpy(out_d2i, m2x3_d2s.ptr<float>(0), sizeof(d2s.value));
+    //printf("------------%f--%f--%f--%f--%f--%f \n",  s2d.value[0], s2d.value[1],  s2d.value[2],  s2d.value[3],  s2d.value[4],  s2d.value[5] );
+    //printf("------------%f--%f--%f--%f--%f--%f \n", out_d2i[0], out_d2i[1], out_d2i[2], out_d2i[3], out_d2i[4], out_d2i[5] );
     int jobs = dst_height * dst_width;
     int threads = 256;
     int blocks = ceil(jobs / (float)threads);

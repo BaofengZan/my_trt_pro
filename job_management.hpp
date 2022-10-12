@@ -27,6 +27,7 @@ public:
 		Input input;  //Mat
 		Output output;   //Box
 		//std::shared_ptr<TRT::Tensor> tensor;  //  预处理之后的显存数据
+		float d2i[6];  // 640图wap到原图的参数
 		MonopolyAllocator<TRT::Tensor>::MonopolyDataPointer tensor;
 		std::shared_ptr<std::promise<Output>> pro;
 	};

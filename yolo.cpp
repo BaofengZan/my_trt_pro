@@ -1,6 +1,7 @@
 #include "cuda_tools.hpp"
 #include "yolo.hpp"
 #include "yolov5_preprocess.h"
+#include "colorspace.h"
 #include "job_management.hpp"
 #include "trt_infer.hpp"
 #include <queue>
@@ -22,6 +23,7 @@ namespace Yolo {
         float* invert_affine_matrix, float* parray,
         int max_objects, cudaStream_t stream
     );
+    void nms_kernel_invoker(float* parray, float nms_threshold, int max_objects, cudaStream_t stream);
 
     static float iou(const Box& a, const Box& b) {
         float cleft = std::max(a.left, b.left);
@@ -69,7 +71,7 @@ namespace Yolo {
     }
 
 
-    using JobManagerImpl = JobManager<cv::Mat, BoxArray, std::tuple<std::string, int>, AffineMatrix>;
+    using JobManagerImpl = JobManager<Yolo::Image, BoxArray, std::tuple<std::string, int>, AffineMatrix>;
     class InferImpl : public Infer, public JobManagerImpl {
     public:
         virtual ~InferImpl()
@@ -115,6 +117,8 @@ namespace Yolo {
             std::vector<Job> fetch_jobs;
             //while (get_jobs_and_wait(fetch_jobs, max_batch_size))
             Job fetch_job;
+            float* d2i_gpu;
+            cudaMalloc((void**)&d2i_gpu, sizeof(float) * 6);
             while (get_job_and_wait(fetch_job))
             {
                 //for (int ibatch = 0; ibatch < fetch_jobs.size(); ++ibatch)
@@ -132,26 +136,27 @@ namespace Yolo {
                 //这块显存用完就释放
                 fetch_job.tensor->release();
                 
+
                 //std::vector<float> cpu_out;
                 //int size = input->byte_size() / sizeof(float);
                 //cpu_out.resize(size);
                 //cudaMemcpy(cpu_out.data(), input->gpu(), input->byte_size(), cudaMemcpyDeviceToHost);
-                //for (int i = 0; i < cpu_out.size(); ++i)
+                //for (int i = 200*640; i < 200 * 640+50; ++i)
                 //{
-                //    printf("val = %f\n", cpu_out[i]);
+                //    printf("ddddddddddddddbg--->val = %f\n", cpu_out[i]);
                 //}
-
 
                 engine->forward();
 
                 float* image_based_output = (float*)output->gpu();
-
-
-
-                decode_kernel_invoker(image_based_output, output->size(1), num_classes, confidence_threshold_, nullptr, (float*)output_array_device.gpu(), MAX_IMAGE_BOXES, nullptr);
-
-
-              /*  std::vector<float> cpu_out;
+                cudaMemcpy(d2i_gpu, fetch_job.d2i, sizeof(float) * 6, cudaMemcpyHostToDevice);
+                cudaMemset(output_array_device.gpu(), 0, output_array_device.byte_size());  // 一定要清空  否则结果错误
+                decode_kernel_invoker(image_based_output, output->size(1), num_classes, confidence_threshold_, d2i_gpu, (float*)output_array_device.gpu(), MAX_IMAGE_BOXES, nullptr);
+                auto& image_based_boxes = fetch_job.output;
+                image_based_boxes.clear();
+                if (0)  //cpu_nms
+                {
+                    /*  std::vector<float> cpu_out;
                 int size = output_array_device.byte_size() / sizeof(float);
 
                 cpu_out.resize(size);
@@ -159,32 +164,54 @@ namespace Yolo {
                 cudaMemcpy(cpu_out.data(), output_array_device.gpu(), output_array_device.byte_size(), cudaMemcpyDeviceToHost);
                 */
 
-                float* cpu_out = output_array_device.cpu<float>();
-                int size = output_array_device.numel(); // 个数
-                //for (int i = 0; i < cpu_out.size(); ++i)
-                //{
-                //    printf("val = %f\n", cpu_out[i]);
-                //}
-                int count = std::min(MAX_IMAGE_BOXES, (int)cpu_out[0]);
-                auto& image_based_boxes = fetch_job.output;
-                for (int i = 0; i < count; ++i) {
-                   float* pbox = output_array_device.cpu<float>(1 + i * NUM_BOX_ELEMENT);
-                    int label = pbox[5];
-                    int keepflag = pbox[6];
-                    if (keepflag == 1) {
-                        image_based_boxes.emplace_back(pbox[0], pbox[1], pbox[2], pbox[3], pbox[4], label);
+                    float* cpu_out = output_array_device.cpu<float>();
+                    int size = output_array_device.numel(); // 个数
+                    //for (int i = 0; i < cpu_out.size(); ++i)
+                    //{
+                    //    printf("val = %f\n", cpu_out[i]);
+                    //}
+                    int count = std::min(MAX_IMAGE_BOXES, (int)cpu_out[0]);
+                    for (int i = 0; i < count; ++i) {
+                        float* pbox = output_array_device.cpu<float>(1 + i * NUM_BOX_ELEMENT);
+                        int label = pbox[5];
+                        int keepflag = pbox[6];
+                        if (keepflag == 1) {
+                            image_based_boxes.emplace_back(pbox[0], pbox[1], pbox[2], pbox[3], pbox[4], label);
+                        }
+                    }
+
+                    image_based_boxes = cpu_nms(image_based_boxes, nms_threshold_);
+                }
+                else
+                {
+                    //gpu nms
+                    nms_kernel_invoker((float*)output_array_device.gpu(), nms_threshold_, MAX_IMAGE_BOXES, nullptr);
+                    float* cpu_out = output_array_device.cpu<float>();
+                    int size = output_array_device.numel(); // 个数
+                    //for (int i = 0; i < cpu_out.size(); ++i)
+                    //{
+                    //    printf("val = %f\n", cpu_out[i]);
+                    //}
+                    int count = std::min(MAX_IMAGE_BOXES, (int)cpu_out[0]);
+                    for (int i = 0; i < count; ++i) {
+                        float* pbox = output_array_device.cpu<float>(1 + i * NUM_BOX_ELEMENT);
+                        int label = pbox[5];
+                        int keepflag = pbox[6];
+                        if (keepflag == 1) {
+                            image_based_boxes.emplace_back(pbox[0], pbox[1], pbox[2], pbox[3], pbox[4], label);
+                        }
                     }
                 }
-
-                image_based_boxes = cpu_nms(image_based_boxes, nms_threshold_);
+              
 
                 fetch_job.pro->set_value(image_based_boxes);
             }
 
             tensor_allocator_.reset();
+            cudaFree(d2i_gpu);
         }
 
-        virtual bool preprocess(Job& job, const cv::Mat& input) {
+        virtual bool preprocess(Job& job, const Image& image) {
             cudaSetDevice(gpu_id_);
 
             // 先申请一块
@@ -205,7 +232,7 @@ namespace Yolo {
             }
 
             // 开始预处理
-            //得到预处理大大小之后，分配现存
+            //得到预处理大大小之后，分配显存
             tensor->resize({ 1,3,input_h_, input_w_ });
 
             // 预处理函数。
@@ -218,19 +245,30 @@ namespace Yolo {
             // preprocess_kernel_img(img_device, input.cols, input.rows, (float*)tensor->gpu(), input_w_, input_h_, nullptr);
             //cudaFree(img_device);
 
-            tensor->set_workspace<uint8_t>({1,3, input.rows, input.cols }, input.data);
-            preprocess_kernel_img(tensor->get_workspace<uint8_t>(), input.cols, input.rows, (float*)tensor->gpu(), input_w_, input_h_, nullptr);
+            //tensor->set_workspace<uint8_t>({1,3, input.rows, input.cols }, input.data); // 这里的tensor workspace 是一块大显存
+            // 因为这里的 Image已经是gpu的显存了。
+            if (image.type == ImageType::GPUYUV) {
+                // 我们首先将yuv变为rgb 都是在gpu上
+                tensor->set_workspace<uint8_t>({ 1,3, image.get_height(), image.get_width() }, nullptr);
+                convert_nv12_to_bgr_invoke(
+                    image.device_data, image.device_data + image.width * image.height,
+                    image.width, image.height, image.width,
+                    tensor->get_workspace<uint8_t>()
+                );
+                // 拷贝到cvmat
+                size_t size_image = image.get_width() * image.get_height() * 3;
+                cudaMemcpy(image.cvmat.data, tensor->get_workspace<uint8_t>(), size_image, cudaMemcpyDeviceToHost);
+            }
+            else {
+                tensor->set_workspace<uint8_t>({ 1,3, image.cvmat.rows, image.cvmat.cols }, image.cvmat.data);
+            }
+            preprocess_kernel_img(tensor->get_workspace<uint8_t>(), image.get_width(), image.get_height(), (float*)tensor->gpu(), input_w_, input_h_, job.d2i, nullptr);
             return true;
         } // 对iunput预处理后，塞到job中
 
-        virtual std::shared_future<BoxArray> commit(const cv::Mat& image) {
-            return JobManager::commit(image);
-        }
 
-
-        virtual std::vector<std::shared_future<BoxArray>> commits(const std::vector<cv::Mat>& images) {
-            // 暂时未实现
-            return std::vector<std::shared_future<BoxArray>>();
+        virtual std::shared_future<BoxArray> commit(const Yolo::Image& image) {
+            return JobManagerImpl::commit(image);
         }
 
     public:
