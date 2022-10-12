@@ -6,9 +6,8 @@
 #include <memory>
 #include "opencv2/opencv.hpp"
 #include "bytetrack/include/STrack.h"
-#include "../yolo.hpp"
-#include "../utils.h"
-//#include "app_yolo/yolo.hpp"
+#include "../application/yolo/yolo.hpp"
+#include "../common/utils.h"
 
 struct FrameInfo2Threads
 {

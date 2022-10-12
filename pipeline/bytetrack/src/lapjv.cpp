@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "lapjv.h"
+#include "../include/lapjv.h"
 
 /** Column-reduction and reduction transfer for a dense cost matrix.
  */

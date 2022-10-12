@@ -2,7 +2,8 @@
 #include <memory>
 #include <future>
 #include <chrono>
-#include "../trt_infer.hpp"
+#include "../application/yolo/yolo.hpp"
+#include "../tensorrt/trt_infer.hpp"
 #include "../ffhdd/ffmpeg_demuxer.hpp"
 #include "../ffhdd/cuvid_decoder.hpp"
 #include "../ffhdd/nalu.hpp"

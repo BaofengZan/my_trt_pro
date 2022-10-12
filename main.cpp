@@ -1,9 +1,9 @@
 #include <iostream>
 #include <queue>
 #include <memory>
-#include "trt_builder.hpp"
-#include "trt_infer.hpp"
-#include "yolo.hpp"
+#include "./tensorrt/trt_builder.hpp"
+#include "./tensorrt/trt_infer.hpp"
+#include "./application/yolo/yolo.hpp"
 #include "./pipeline/AsyncProcess2Threads.h"
 #include "opencv2/opencv.hpp"
 #include "log.h"
@@ -136,7 +136,7 @@ void test_Async(){
     std::vector<std::shared_ptr<Yolo::Infer>> yolo_instance;
     for (int i = 0; i < num_yolo_instance; ++i)
     {
-        auto yolo = Yolo::create_infer(R"(F:\LearningCode\my_trt_pro\my_trt_pro/fp16_yolov5s-err.engine)", 0, 0.45, 0.5);;
+        auto yolo = Yolo::create_infer(R"(D:\\LearningCodes\\GithubRepo\\shouxieAI\\my_trt_pro\\my_trt_pro\\build/fp16_yolov5s.engine)", 0, 0.45, 0.5);;
         if (yolo == nullptr) {
             std::cout << "Yolo create failed \n";
             continue;
@@ -153,7 +153,7 @@ void test_Async(){
     }
 
 
-    std::string file = "F:\\LearningCode\\hard_decode_trt-windows\\workspace\\exp/face_tracker.mp4";
+    std::string file = "D:\\LearningCodes\\GithubRepo\\shouxieAI\\tensorRT_Pro\\workspace\\exp/face_tracker.mp4";
     std::vector<std::thread> ts;
 
 
@@ -175,7 +175,13 @@ int main()
 {
 
     init_logger(); // ok
-
+   /* TRT::compile(
+        TRT::Mode::FP16, 
+        1, 
+        R"(./yolov5s.onnx)",
+        R"(./)"
+    );*/
+    // 
     //test_yolo(); 
 
     //test_decode();  // ≤‚ ‘ok

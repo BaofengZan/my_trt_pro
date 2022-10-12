@@ -1,9 +1,9 @@
 #pragma once
 //#include "Queue.h"
-#include "STrack.h"
-#include "BYTETracker.h"
+#include "./bytetrack/include/STrack.h"
+#include "./bytetrack/include/BYTETracker.h"
 #include "objs_info.hpp"
-#include "../utils.h"
+#include "../common/utils.h"
 
 class AsyncProcess2Threads
 {

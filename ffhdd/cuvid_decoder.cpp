@@ -1,7 +1,7 @@
 
 #include "cuvid_decoder.hpp"
 //#include <common/cuda_tools.hpp>
-#include "../cuda_tools.hpp"
+#include "../common/cuda_tools.hpp"
 #include "log.h"
 #include <nvcuvid.h>
 #include <mutex>
