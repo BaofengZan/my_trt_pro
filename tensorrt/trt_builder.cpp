@@ -1,4 +1,5 @@
-#include "trt_builder.hpp"
+ï»¿#include "trt_builder.hpp"
+#include "trt_logging.hpp"
 #include "../common/utils.h"
 #include <NvInfer.h>
 #include <NvInferPlugin.h>
@@ -11,34 +12,35 @@
 #include <memory>
 #include "log.h"
 
-// trt ¹æ¶¨ĞèÒª¼Ì³ĞILogger£¬ÊµÏÖlogger
+// trt è§„å®šéœ€è¦ç»§æ‰¿ILoggerï¼Œå®ç°logger
 // virtual void log(Severity severity, AsciiChar const* msg) noexcept = 0;
 // AsciiChar const* == const char*
-class Logger : public nvinfer1::ILogger {
-	// critical > error > warn > info > debug > trace
-public:
-	virtual void log(Severity severity, const char* msg) noexcept {
-		if (severity == Severity::kERROR) {
-			spdlog::critical("Error: {}", msg);   // ÕâÀï¿ÉÒÔ×Ô¼ºÊ¹ÓÃµÚÈı·½µÄlogger¿â£¬Ğ´Èëµ½ÎÄ¼şÖĞ  spd-logger
-			//abort();
-		}
-		else if (severity == Severity::kINFO) {
-			spdlog::info("Info: {}", msg);
-		}
-		else if (severity == Severity::kINTERNAL_ERROR) {
-			spdlog::error("Error: {}", msg);
-		}
-		else if (severity == Severity::kVERBOSE) {
-			spdlog::debug("Verbose: {}", msg);
-		}
-		else {
-			//Severity::kWARNING 
-			spdlog::warn("Warning: {}", msg);
-		}
-	}
-};
+// 
+//class Logger : public nvinfer1::ILogger {
+//	// critical > error > warn > info > debug > trace
+//public:
+//	virtual void log(Severity severity, const char* msg) noexcept {
+//		if (severity == Severity::kERROR) {
+//			spdlog::critical("Error: {}", msg);   // è¿™é‡Œå¯ä»¥è‡ªå·±ä½¿ç”¨ç¬¬ä¸‰æ–¹çš„loggeråº“ï¼Œå†™å…¥åˆ°æ–‡ä»¶ä¸­  spd-logger
+//			//abort();
+//		}
+//		else if (severity == Severity::kINFO) {
+//			spdlog::info("Info: {}", msg);
+//		}
+//		else if (severity == Severity::kINTERNAL_ERROR) {
+//			spdlog::error("Error: {}", msg);
+//		}
+//		else if (severity == Severity::kVERBOSE) {
+//			spdlog::debug("Verbose: {}", msg);
+//		}
+//		else {
+//			//Severity::kWARNING 
+//			spdlog::warn("Warning: {}", msg);
+//		}
+//	}
+//};
 
-static Logger gLogger;
+static Logger gLogger(Severity::kVERBOSE);
 
 bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string& onnx_file, const std::string& engine_save_path, const size_t maxWorkspaceSize)
 {
@@ -51,16 +53,16 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 
 	spdlog::info("start compile...");
 
-	//×Ô¶¨ÒåÉ¾³ıº¯Êı
+	//è‡ªå®šä¹‰åˆ é™¤å‡½æ•°
 	std::shared_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(gLogger), destroy_nvidia_pointer<nvinfer1::IBuilder>);
-	if (builder == nullptr){
+	if (builder == nullptr) {
 		spdlog::error("create builer error!");
 		return false;
 	}
 
 	std::shared_ptr<nvinfer1::IBuilderConfig> config(builder->createBuilderConfig(), destroy_nvidia_pointer<nvinfer1::IBuilderConfig>);
 
-	if (mode == Mode::FP16){
+	if (mode == Mode::FP16) {
 		if (builder->platformHasFastFp16())
 		{
 			config->setFlag(nvinfer1::BuilderFlag::kFP16);
@@ -81,29 +83,29 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		}
 	}
 
-	// ¿ªÊ¼parse onnx
+	// å¼€å§‹parse onnx
 	std::shared_ptr<nvinfer1::INetworkDefinition> network;
 
-	// ÏÈÖ§³Öonnx
+	// å…ˆæ”¯æŒonnx
 	const auto explicitBatch = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
 	network = std::shared_ptr<nvinfer1::INetworkDefinition>(builder->createNetworkV2(explicitBatch), destroy_nvidia_pointer<nvinfer1::INetworkDefinition>);
 
-	// ½âÎöonnx
+	// è§£æonnx
 	std::shared_ptr<nvonnxparser::IParser> onnxParser;
 
-	//£¡ ÕâÀïÔÚTensorrt_proÖĞ¸Ã½Ó¿ÚÓĞĞŞ¸Ä
+	//ï¼ è¿™é‡Œåœ¨Tensorrt_proä¸­è¯¥æ¥å£æœ‰ä¿®æ”¹
 	onnxParser = std::shared_ptr<nvonnxparser::IParser>(nvonnxparser::createParser(*network, gLogger), destroy_nvidia_pointer<nvonnxparser::IParser>);
-	if (!onnxParser->parseFromFile(onnx_file.c_str(), 1)) // 1 ÏêÏ¸´òÓ¡ÈÕÖ¾
+	if (!onnxParser->parseFromFile(onnx_file.c_str(), 1)) // 1 è¯¦ç»†æ‰“å°æ—¥å¿—
 	{
 		//spdlog::error("parse onnx file error!");
 		return false;
 	}
 
-	// ´òÓ¡Ò»Ğ©ÊäÈë Êä³öĞÅÏ¢
+	// æ‰“å°ä¸€äº›è¾“å…¥ è¾“å‡ºä¿¡æ¯
 	auto inputTensor = network->getInput(0);
 	auto inputDims = inputTensor->getDimensions();
 
-	spdlog::info("Input shape is {}", join_dims(std::vector<int>(inputDims.d, inputDims.d+inputDims.nbDims)).c_str());
+	spdlog::info("Input shape is {}", join_dims(std::vector<int>(inputDims.d, inputDims.d + inputDims.nbDims)).c_str());
 
 	int num_input = network->getNbInputs();
 	spdlog::info("Network has {} inputs", num_input);
@@ -124,7 +126,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		spdlog::info("input[{}] {} shape is {}", i, tensor->getName(), dim_str);
 	}
 
-	// ´òÓ¡Ã¿Ò»²ãµÄÎ¬¶È
+	// æ‰“å°æ¯ä¸€å±‚çš„ç»´åº¦
 	int num_net_layers = network->getNbLayers();
 	spdlog::info("Network has {} layers", num_net_layers);
 	for (int i = 0; i < num_net_layers; ++i)
@@ -134,7 +136,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 		//auto input0 = layer->getInput(0);
 		auto input = layer->getNbInputs();
 		std::string input_dims = "";
-		for (int j=0; j<input; ++j)
+		for (int j = 0; j < input; ++j)
 		{
 			auto dims = layer->getInput(j)->getDimensions();
 			input_dims += "[";
@@ -159,10 +161,10 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	spdlog::info("set MaxBatchSize = {}", maxBatchSize);
 
 	config->setMaxWorkspaceSize(maxWorkspaceSize);
-	spdlog::info("set MaxBatchSize = {}MB", maxBatchSize/1024.0f/1024.0f);
+	spdlog::info("set MaxBatchSize = {}MB", maxBatchSize / 1024.0f / 1024.0f);
 
 	// profile
-	// Îª²»Í¬ÊäÈëÉèÖÃ²»Í¬´óĞ¡
+	// ä¸ºä¸åŒè¾“å…¥è®¾ç½®ä¸åŒå¤§å°
 	auto profile = builder->createOptimizationProfile();
 	for (int i = 0; i < num_input; ++i)
 	{
@@ -207,7 +209,7 @@ bool TRT::compile(const Mode& mode, unsigned int maxBatchSize, const std::string
 	{
 		mode_name = "engine.engine";
 	}
-	std::string engine_file = engine_save_path + "/" + mode_str(mode)+ "_" + mode_name;
+	std::string engine_file = engine_save_path + "/" + mode_str(mode) + "_" + mode_name;
 	spdlog::info("Save engine to {}", engine_file);
 	return save_file(engine_file, seridata->data(), seridata->size());
 }
